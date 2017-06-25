@@ -5,4 +5,3 @@ import drf_swagger_missing.rest_framework_swagger_renderers
 import drf_swagger_missing.rest_framework_swagger_views
 import drf_swagger_missing.rest_framwork_schemas
 
-__version__ = 1

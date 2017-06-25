@@ -1,5 +1,5 @@
 from setuptools import setup
-from drf_swagger_missing import __version__
+__version__ = 1
 
 setup(
     name='auto_swagger',
