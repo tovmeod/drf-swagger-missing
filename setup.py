@@ -2,7 +2,7 @@ from setuptools import setup
 __version__ = 1
 
 setup(
-    name='auto_swagger',
+    name='drf-swagger-missing',
     version=__version__,
     url='https://github.com/tovmeod/drf-swagger-missing',
     license='BSD',
