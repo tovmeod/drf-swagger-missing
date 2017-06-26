@@ -6,7 +6,7 @@ from rest_framework.renderers import CoreJSONRenderer
 from rest_framework_swagger.renderers import SwaggerUIRenderer
 
 from drf_swagger_missing.rest_framework_swagger_renderers import BetterOpenAPIRenderer
-from drf_swagger_missing.rest_framwork_schemas import BetterSchemaGenerator
+from drf_swagger_missing.rest_framework_schemas import BetterSchemaGenerator
 
 
 class SwaggerSchemaView(APIView):
