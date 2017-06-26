@@ -3,13 +3,16 @@ from rest_framework.schemas import SchemaGenerator, OrderedDict, insert_into
 
 class BetterSchemaGenerator(SchemaGenerator):
     prefix = ''
-    definitions = []
+    definitions = OrderedDict()
     check_view_permissions = True
 
     def __init__(self, title=None, url=None, description=None, patterns=None, urlconf=None,
                  definitions=None, version='', check_view_permissions=True):
         super().__init__(title, url, description, patterns, urlconf)
-        self.definitions = definitions or []
+        if isinstance(definitions, list):
+            definitions = OrderedDict([(p.title, p) for p in definitions])
+        if definitions:
+            self.definitions.update(definitions)
         self.version = version
         self.check_view_permissions = check_view_permissions
 
@@ -17,7 +20,7 @@ class BetterSchemaGenerator(SchemaGenerator):
         """Add the base path and definitions to the document"""
         schema = super().get_schema(request, public)
         schema._base_path = self.prefix
-        schema._definitions = self.definitions
+        schema._definitions.update(self.definitions)
         schema._version = self.version
         return schema
 
@@ -43,7 +46,8 @@ class BetterSchemaGenerator(SchemaGenerator):
         return link
 
     def get_links(self, request=None):
-        """Almost copy of parent, here I use subpath to create the link and save the base path"""
+        """Almost copy of parent, here I use subpath to create the link and save the base path
+        Also I call the new get definitions, which generate object definitions from serializers ued in views"""
         links = OrderedDict()
 
         # Generate (path, method, view) given (path, method, callback).
@@ -69,4 +73,43 @@ class BetterSchemaGenerator(SchemaGenerator):
             link = self.get_link(subpath, method, view)
             keys = self.get_keys(subpath, method, view)
             insert_into(links, keys, link)
+            obj_def = self.get_object_definition(method, view)
+            if obj_def:
+                if obj_def.title not in self.definitions:
+                    self.definitions[obj_def.title] = obj_def
         return links
+
+    def get_object_definition(self, method, view):
+        """Create an Object definition from serializer
+        It will create a different definitions depending on the method, definition name is
+        {serializer class name}_{read|write}
+        POST, PUT, PATCH is write
+        GET, DELETE, HEAD is read
+        write methods will not include read only fields
+        :param str method: GET, POST etc
+        :param rest_framework.generics.GenericAPIView view:
+        :rtype: coreschema.Object
+        """
+        from rest_framework import serializers
+        from rest_framework.schemas import field_to_schema
+        import coreschema
+        if not hasattr(view, 'get_serializer'):
+            return None
+        serializer = view.get_serializer()
+        if method in ('POST', 'PUT', 'PATCH'):
+            write = True
+        elif method in ('GET', 'DELETE', 'HEAD'):
+            write = False
+        else:
+            assert False, 'Can not recognize method %s' % method
+        fields = []
+        for field in serializer.fields.values():
+            if write and field.read_only or isinstance(field, serializers.HiddenField):
+                continue
+
+            required = bool(field.required)  # field.required is a list
+            field = field_to_schema(field)
+            fields.append(field)
+
+        return coreschema.Object(title='%s_%s' % (serializer.__class__.__name__, 'write' if write else 'read'),
+                                 properties=fields)

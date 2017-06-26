@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import coreschema
 
 
@@ -24,3 +26,13 @@ if not hasattr(coreschema, 'File'):
     class File(coreschema.schemas.Schema):
         pass
     coreschema.File = File
+
+
+class BetterObject(coreschema.Object):
+    def __init__(self, properties=None, required=None, max_properties=None, min_properties=None,
+                 pattern_properties=None, additional_properties=True, **kwargs):
+        if isinstance(properties, list):
+            properties = OrderedDict([(p.title, p) for p in properties])
+        super().__init__(properties, required, max_properties, min_properties, pattern_properties,
+                         additional_properties, **kwargs)
+coreschema.Object = BetterObject

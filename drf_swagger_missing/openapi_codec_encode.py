@@ -163,11 +163,10 @@ encode._get_responses = _get_responses
 
 def encode_schemas(schemas):
     """
-    :type schemas: list[coreschema.schemas.Schema]
+    :type schemas: OrderedDict
     """
-
     definitions_dict = OrderedDict()
-    for s in schemas:
+    for k, s in schemas.items():
         definitions_dict[s.title] = encode_schema(s)
     return definitions_dict
 
@@ -189,9 +188,8 @@ def encode_schema(schema):
     if properties:
         schema_dict['properties'] = encode_schemas(properties)
 
-    additional_properties = getattr(schema, 'additional_properties', None)
-    if additional_properties:
-        schema_dict['additionalProperties'] = encode_schema(additional_properties)
+    if hasattr(schema, 'additional_properties') and schema.additional_properties:
+        schema_dict['additionalProperties'] = encode_schema(schema.additional_properties_schema)
 
     if isinstance(schema, coreschema.Array):
         # Array has required field 'items'
