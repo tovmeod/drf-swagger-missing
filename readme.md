@@ -20,6 +20,9 @@ possible and the features integrated in each project.
     
 3. Create your view and set the parameters you need
 ```python
+# replace import coreschema with:
+from drf_swagger_missing import coreschema
+
 class MySwaggerView(drf_swagger_missing.SwaggerSchemaView):
     title = 'My system REST API'
     description = 'This is a system that I made'
