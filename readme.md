@@ -57,7 +57,7 @@ urlpatterns = [
 class SceneView(APIView):
     class Meta:
         responses = {
-            'get': [
+            'retrieve': [
                 coreschema.Response(status=status.HTTP_200_OK, description='A Scene object',
                                     schema=coreschema.Ref('Scene')),
                 coreschema.Response(status.HTTP_404_NOT_FOUND, description='Scene not found'),
@@ -77,6 +77,9 @@ class SceneView(APIView):
                 coreschema.Response(status=status.HTTP_200_OK, description='The Scene object deleted',
                                     schema=coreschema.Ref('Scene')),
                 coreschema.Response(status.HTTP_404_NOT_FOUND, description='Scene not found'),
+            ],
+            'action': [
+                coreschema.Response(status=status.HTTP_200_OK, schema=coreschema.String()),
             ]
         }
         fields = {

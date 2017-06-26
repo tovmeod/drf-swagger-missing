@@ -1,3 +1,4 @@
+import coreschema
 from rest_framework.schemas import SchemaGenerator, OrderedDict, insert_into
 
 
@@ -39,8 +40,29 @@ class BetterSchemaGenerator(SchemaGenerator):
         link = super().get_link(path, method, view)
         method = method.lower()
         method_name = getattr(view, 'action', method.lower())
+        link._responses = OrderedDict()
+        # Add obvious responses based on common action names used in viewsets
         try:
-            link._responses = view.Meta.responses[method_name]
+            serializer_name = view.get_serializer().__class__.__name__
+            if method_name == 'retrieve':
+                response = coreschema.Response(status=200, schema=coreschema.Ref('%s_read' % serializer_name))
+            elif method_name == 'list':
+                response = coreschema.Response(status=200, schema=coreschema.Array(
+                    items=coreschema.Ref('%s_read' % serializer_name)))
+            elif method_name == 'create':
+                response = coreschema.Response(status=201, schema=coreschema.Ref('%s_read' % serializer_name))
+            else:
+                response = None
+            if response:
+                link._responses[response.status] = response
+        except AttributeError:
+            # not all views have get_serializer
+            pass
+        # User may want to add responses or overwrite existing
+        try:
+            # User defined responses come in a list
+            for r in view.Meta.responses[method_name]:
+                link._responses[r.status] = r
         except (AttributeError, KeyError):
             # The view doesn't have Meta, Meta doesn't have .responses or responses doesn't have this method
             pass
@@ -87,6 +109,7 @@ class BetterSchemaGenerator(SchemaGenerator):
         POST, PUT, PATCH is write
         GET, DELETE, HEAD is read
         write methods will not include read only fields
+        read methods will not include write only fields
         :param str method: GET, POST etc
         :param rest_framework.generics.GenericAPIView view:
         :rtype: coreschema.Object
@@ -105,7 +128,8 @@ class BetterSchemaGenerator(SchemaGenerator):
             assert False, 'Can not recognize method %s' % method
         fields = []
         for field in serializer.fields.values():
-            if write and field.read_only or isinstance(field, serializers.HiddenField):
+            if isinstance(field, serializers.HiddenField) or write and field.read_only or \
+                            not write and field.write_only:
                 continue
 
             required = bool(field.required)  # field.required is a list

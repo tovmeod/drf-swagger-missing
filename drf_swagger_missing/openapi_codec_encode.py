@@ -126,6 +126,7 @@ def _get_field_type(field):
 
 encode._get_field_type = _get_field_type
 
+
 def _get_schema_type(schema):
     """
     :type schema: coreschema.schemas.Schema
@@ -148,7 +149,7 @@ def _get_responses(link):
     """
     if hasattr(link, '_responses'):
         responses = OrderedDict()
-        for r in link._responses:
+        for s, r in link._responses.items():
             responses[r.status] = encode_response(r)
         return responses
     template = {'description': ''}

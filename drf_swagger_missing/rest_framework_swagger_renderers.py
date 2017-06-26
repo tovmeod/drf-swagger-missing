@@ -1,9 +1,8 @@
-from rest_framework_swagger.renderers import OpenAPICodec
+from rest_framework_swagger.renderers import OpenAPICodec, OpenAPIRenderer
 from openapi_codec import generate_swagger_object
 from coreapi.compat import force_bytes
 import simplejson as json
 import coreapi
-from rest_framework_swagger.renderers import OpenAPIRenderer
 from rest_framework.renderers import JSONRenderer
 from rest_framework import status
 from django.conf import settings
