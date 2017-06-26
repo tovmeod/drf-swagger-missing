@@ -38,8 +38,9 @@ class BetterSchemaGenerator(SchemaGenerator):
     def get_link(self, path, method, view):
         link = super().get_link(path, method, view)
         method = method.lower()
+        method_name = getattr(view, 'action', method.lower())
         try:
-            link._responses = view.Meta.responses[method]
+            link._responses = view.Meta.responses[method_name]
         except (AttributeError, KeyError):
             # The view doesn't have Meta, Meta doesn't have .responses or responses doesn't have this method
             pass
