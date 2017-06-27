@@ -1,5 +1,5 @@
 from setuptools import setup
-__version__ = 3
+__version__ = 4
 
 setup(
     name='drf-swagger-missing',
