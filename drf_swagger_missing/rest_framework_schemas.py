@@ -66,6 +66,14 @@ class BetterSchemaGenerator(SchemaGenerator):
         except (AttributeError, KeyError):
             # The view doesn't have Meta, Meta doesn't have .responses or responses doesn't have this method
             pass
+
+        # User may define what content types the view may produce:
+        try:
+            # User defined responses come in a list
+            link._produces = view.Meta.produces[method_name]
+        except (AttributeError, KeyError):
+            # The view doesn't have Meta or Meta doesn't have .produces
+            link._produces = []
         return link
 
     def get_links(self, request=None):

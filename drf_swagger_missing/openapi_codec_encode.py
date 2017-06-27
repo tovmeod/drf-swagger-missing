@@ -225,3 +225,13 @@ def _get_field_description(field):
     return getattr(field.schema, 'description', '')
 
 encode._get_field_description = _get_field_description
+
+old_get_operation = encode._get_operation
+
+
+def _get_operation(operation_id, link, tags):
+    operation = old_get_operation(operation_id, link, tags)
+    if link._produces:
+        operation['produces'] = link._produces
+    return operation
+encode._get_operation = _get_operation
