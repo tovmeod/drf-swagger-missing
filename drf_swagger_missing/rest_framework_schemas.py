@@ -1,5 +1,7 @@
 import coreschema
 from rest_framework.schemas import SchemaGenerator, OrderedDict, insert_into
+from rest_framework import serializers
+from rest_framework.schemas import field_to_schema
 
 
 class BetterSchemaGenerator(SchemaGenerator):
@@ -44,13 +46,15 @@ class BetterSchemaGenerator(SchemaGenerator):
         # Add obvious responses based on common action names used in viewsets
         try:
             serializer_name = view.get_serializer().__class__.__name__
-            if method_name == 'retrieve':
+            if method_name in ('retrieve', 'update', 'partial_update'):
                 response = coreschema.Response(status=200, schema=coreschema.Ref('%s_read' % serializer_name))
             elif method_name == 'list':
                 response = coreschema.Response(status=200, schema=coreschema.Array(
                     items=coreschema.Ref('%s_read' % serializer_name)))
             elif method_name == 'create':
                 response = coreschema.Response(status=201, schema=coreschema.Ref('%s_read' % serializer_name))
+            elif method_name == 'destroy':
+                response = coreschema.Response(status=204)
             else:
                 response = None
             if response:
@@ -104,13 +108,13 @@ class BetterSchemaGenerator(SchemaGenerator):
             link = self.get_link(subpath, method, view)
             keys = self.get_keys(subpath, method, view)
             insert_into(links, keys, link)
-            obj_def = self.get_object_definition(method, view)
+            obj_def = self.add_object_definitions(method, view)
             if obj_def:
                 if obj_def.title not in self.definitions:
                     self.definitions[obj_def.title] = obj_def
         return links
 
-    def get_object_definition(self, method, view):
+    def add_object_definitions(self, method, view):
         """Create an Object definition from serializer
         It will create a different definitions depending on the method, definition name is
         {serializer class name}_{read|write}
@@ -118,18 +122,20 @@ class BetterSchemaGenerator(SchemaGenerator):
         GET, DELETE, HEAD is read
         write methods will not include read only fields
         read methods will not include write only fields
+        Note that for write methods it will also return a read definition because by default this is the definition
+        object returned by write methods
         :param str method: GET, POST etc
         :param rest_framework.generics.GenericAPIView view:
-        :rtype: coreschema.Object
         """
-        from rest_framework import serializers
-        from rest_framework.schemas import field_to_schema
-        import coreschema
         if not hasattr(view, 'get_serializer'):
             return None
         serializer = view.get_serializer()
+        name = serializer.__class__.__name__
+        if name in self.definitions:
+            return
         if method in ('POST', 'PUT', 'PATCH'):
             write = True
+            self.add_object_definitions('GET', view)
         elif method in ('GET', 'DELETE', 'HEAD'):
             write = False
         else:
@@ -144,5 +150,5 @@ class BetterSchemaGenerator(SchemaGenerator):
             field = field_to_schema(field)
             fields.append(field)
 
-        return coreschema.Object(title='%s_%s' % (serializer.__class__.__name__, 'write' if write else 'read'),
-                                 properties=fields)
+        self.definitions[name] = coreschema.Object(title='%s_%s' % (name, 'write' if write else 'read'),
+                                                   properties=fields)
