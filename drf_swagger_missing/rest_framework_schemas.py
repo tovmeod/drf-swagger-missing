@@ -52,7 +52,7 @@ class BetterSchemaGenerator(SchemaGenerator):
                 response = coreschema.Response(status=200, schema=coreschema.Array(
                     items=coreschema.Ref('%s_read' % serializer_name)))
             elif method_name == 'create':
-                response = coreschema.Response(status=201, schema=coreschema.Ref('%s_read' % serializer_name))
+                response = coreschema.Response(status=201, schema=coreschema.Ref('%s_write' % serializer_name))
             elif method_name == 'destroy':
                 response = coreschema.Response(status=204)
             else:
