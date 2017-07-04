@@ -130,17 +130,20 @@ class BetterSchemaGenerator(SchemaGenerator):
         if not hasattr(view, 'get_serializer'):
             return None
         serializer = view.get_serializer()
-        name = serializer.__class__.__name__
-        if name in self.definitions:
-            return
         if method in ('POST', 'PUT', 'PATCH'):
             write = True
+            # also generate a read definition, because it is commonly used as response for write actions
             self.add_object_definitions('GET', view)
+            name = '%s_write' % serializer.__class__.__name__
         elif method in ('GET', 'DELETE', 'HEAD'):
             write = False
+            name = '%s_read' % serializer.__class__.__name__
         else:
             assert False, 'Can not recognize method %s' % method
+        if name in self.definitions:
+            return
         fields = []
+        f = serializer.fields.values()
         for field in serializer.fields.values():
             if isinstance(field, serializers.HiddenField) or write and field.read_only or \
                             not write and field.write_only:
@@ -150,5 +153,4 @@ class BetterSchemaGenerator(SchemaGenerator):
             field = field_to_schema(field)
             fields.append(field)
 
-        self.definitions[name] = coreschema.Object(title='%s_%s' % (name, 'write' if write else 'read'),
-                                                   properties=fields)
+        self.definitions[name] = coreschema.Object(title=name, properties=fields)
