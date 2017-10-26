@@ -5,6 +5,8 @@ from rest_framework import schemas
 
 
 super_get_link = schemas.AutoSchema.get_link
+super_get_serializer_fields = schemas.AutoSchema.get_serializer_fields
+super_get_get_filter_fields = schemas.AutoSchema.get_filter_fields
 
 
 class BetterAutoSchema(schemas.AutoSchema):
@@ -30,7 +32,7 @@ class BetterAutoSchema(schemas.AutoSchema):
                 response = None
             if response:
                 link._responses[response.status] = response
-        except AttributeError:
+        except (AttributeError, AssertionError):
             # not all views have get_serializer
             pass
         # User may want to add responses or overwrite existing
@@ -51,4 +53,28 @@ class BetterAutoSchema(schemas.AutoSchema):
             link._produces = []
         return link
 
+    def get_serializer_fields(self, path, method):
+        try:
+            return super_get_serializer_fields(self, path, method)
+        except AssertionError:  # Default behaviour of GenericAPIView is to raise AssertionError
+            import logging
+            logging.getLogger('drf-swagger-missing').warning('View {} does not have a serializer_class defined, '
+                                                             'unable to determine the fields for {} {}'
+                                                             ''.format(self.view.__class__.__name__, method, path))
+            return []
+
+    def get_filter_fields(self, path, method):
+        """Hack to add extra fields"""
+        fields = super_get_get_filter_fields(self, path, method)
+        method_name = getattr(self.view, 'action', method.lower())
+        try:
+            fields += self.view.Meta.fields.get(method_name, [])
+        except AttributeError:
+            # The view doesn't have Meta, Meta doesn't have .fields
+            pass
+        return fields
+
+
 schemas.AutoSchema.get_link = BetterAutoSchema.get_link
+schemas.AutoSchema.get_serializer_fields = BetterAutoSchema.get_serializer_fields
+schemas.AutoSchema.get_filter_fields = BetterAutoSchema.get_filter_fields

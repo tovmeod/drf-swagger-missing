@@ -8,7 +8,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
-from food.models import Pizza
+from food.models import Pizza, Topping
 from .permissions import IsOwnerOrReadOnly
 from .serializers import PizzaSerializer
 
@@ -60,3 +60,11 @@ class PizzaViewSet(viewsets.ModelViewSet):
     def review(self):
         """Users can upload a review"""
         return Response({'status': 'password set'})
+
+
+class ToppingViewSet(viewsets.ModelViewSet):
+    """Example of a viewset without a serializer"""
+
+    queryset = Topping.objects.all()
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsOwnerOrReadOnly,)
