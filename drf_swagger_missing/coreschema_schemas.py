@@ -18,6 +18,7 @@ class SchemaResponse:
         self.headers = headers
         self.examples = examples
 
+
 if not hasattr(coreschema, 'Response'):
     coreschema.Response = SchemaResponse
 
@@ -35,4 +36,6 @@ class BetterObject(coreschema.Object):
             properties = OrderedDict([(p.title, p) for p in properties])
         super().__init__(properties, required, max_properties, min_properties, pattern_properties,
                          additional_properties, **kwargs)
+
+
 coreschema.Object = BetterObject

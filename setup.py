@@ -1,5 +1,5 @@
 from setuptools import setup
-__version__ = 8
+__version__ = 9
 
 setup(
     name='drf-swagger-missing',
@@ -12,12 +12,12 @@ setup(
     long_description=__doc__,
     packages=['drf_swagger_missing'],
     install_requires=[
-        'coreapi',
-        'coreschema',
-        'openapi_codec',
-        'djangorestframework',
-        'django-rest-swagger',
-        'django',
+        'coreapi==2.3.3',
+        'coreschema==0.0.4',
+        'openapi_codec==1.3.2',
+        'djangorestframework==3.7.1',
+        'django-rest-swagger==2.1.2',
+        'django==1.11.6',
     ],
     zip_safe=False,
     include_package_data=True,

@@ -1,7 +1,9 @@
+from collections import OrderedDict
+
 import coreschema
-from rest_framework.schemas import SchemaGenerator, OrderedDict, insert_into
+from rest_framework.schemas.generators import SchemaGenerator, insert_into, LinkNode
 from rest_framework import serializers
-from rest_framework.schemas import field_to_schema
+from rest_framework.schemas.inspectors import field_to_schema
 
 
 class BetterSchemaGenerator(SchemaGenerator):
@@ -38,7 +40,7 @@ class BetterSchemaGenerator(SchemaGenerator):
             pass
         return fields
 
-    def get_link(self, path, method, view):
+    def old_get_link(self, path, method, view):
         link = super().get_link(path, method, view)
         method = method.lower()
         method_name = getattr(view, 'action', method.lower())
@@ -83,7 +85,7 @@ class BetterSchemaGenerator(SchemaGenerator):
     def get_links(self, request=None):
         """Almost copy of parent, here I use subpath to create the link and save the base path
         Also I call the new get definitions, which generate object definitions from serializers ued in views"""
-        links = OrderedDict()
+        links = LinkNode()
 
         # Generate (path, method, view) given (path, method, callback).
         paths = []
@@ -105,7 +107,7 @@ class BetterSchemaGenerator(SchemaGenerator):
             if self.check_view_permissions and not self.has_view_permissions(path, method, view):
                 continue
             subpath = path[len(self.prefix):]
-            link = self.get_link(subpath, method, view)
+            link = view.schema.get_link(subpath, method, base_url=self.url)
             keys = self.get_keys(subpath, method, view)
             insert_into(links, keys, link)
             obj_def = self.add_object_definitions(method, view)
@@ -143,14 +145,14 @@ class BetterSchemaGenerator(SchemaGenerator):
         if name in self.definitions:
             return
         fields = []
-        f = serializer.fields.values()
         for field in serializer.fields.values():
             if isinstance(field, serializers.HiddenField) or write and field.read_only or \
                             not write and field.write_only:
                 continue
 
-            required = bool(field.required)  # field.required is a list
+            # required = bool(field.required)  # field.required is a list
             field = field_to_schema(field)
             fields.append(field)
 
         self.definitions[name] = coreschema.Object(title=name, properties=fields)
+        return self.definitions[name]

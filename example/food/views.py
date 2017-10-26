@@ -2,9 +2,7 @@ import coreapi
 
 from drf_swagger_missing import coreschema
 # make sure to import coreschema from drf_swagger_missing to be sure it is already patched
-from django.contrib.auth.models import User
 from rest_framework import permissions, status
-from rest_framework import renderers
 from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
@@ -45,7 +43,7 @@ class PizzaViewSet(viewsets.ModelViewSet):
                                     schema=coreschema.Object()),
             ],
             'retrieve': [coreschema.Response(status=status.HTTP_404_NOT_FOUND, description='pizza doesn\'t exist ',
-                                    schema=coreschema.String())]
+                                             schema=coreschema.String())]
         }
         fields = {'review': [
             coreapi.Field(name='stars', required=False, location='query', schema=coreschema.Number()),

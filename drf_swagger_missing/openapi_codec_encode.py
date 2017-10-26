@@ -1,6 +1,7 @@
+from collections import OrderedDict
+
 import coreschema
 from openapi_codec import encode
-from rest_framework.schemas import OrderedDict
 
 
 def _get_links(document):
@@ -26,6 +27,7 @@ def _get_links(document):
         return [encode._add_tag_prefix(item) for item in links]
 
     return links
+
 
 encode._get_links = _get_links
 
@@ -110,6 +112,8 @@ def _get_parameters(link, encoding):
         parameters.append(parameter)
 
     return parameters
+
+
 encode._get_parameters = _get_parameters
 
 
@@ -123,6 +127,7 @@ def _get_field_type(field):
         return 'string'
 
     return _get_schema_type(field.schema)
+
 
 encode._get_field_type = _get_field_type
 
@@ -158,6 +163,7 @@ def _get_responses(link):
     if link.action.lower() == 'delete':
         return {'204': template}
     return {'200': template}
+
 
 encode._get_responses = _get_responses
 
@@ -224,6 +230,7 @@ def _get_field_description(field):
 
     return getattr(field.schema, 'description', '')
 
+
 encode._get_field_description = _get_field_description
 
 old_get_operation = encode._get_operation
@@ -234,4 +241,6 @@ def _get_operation(operation_id, link, tags):
     if link._produces:
         operation['produces'] = link._produces
     return operation
+
+
 encode._get_operation = _get_operation

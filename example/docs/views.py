@@ -6,9 +6,9 @@ class MySwaggerView(SwaggerSchemaView):
     title = 'The title for the API'
     description = 'The description goes here'
     version = '1.0.0'
-    
-    # By default the schema generator will check if the current requesting user has permission for each view, 
-    # you may skip this check and present all your API paths to all users, including anonymous 
+
+    # By default the schema generator will check if the current requesting user has permission for each view,
+    # you may skip this check and present all your API paths to all users, including anonymous
     check_view_permissions = False
 
     # Extra object definitions

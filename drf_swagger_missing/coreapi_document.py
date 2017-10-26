@@ -8,4 +8,5 @@ class BetterDocument(coreapi.Document):
     _definitions = OrderedDict()
     _version = ''
 
+
 coreapi.Document = BetterDocument
