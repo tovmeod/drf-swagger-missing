@@ -210,9 +210,7 @@ def encode_response(response):
     :type response: coreschema.Response
     """
     response_dict = OrderedDict()
-    description = getattr(response, 'description', None)
-    if description:
-        response_dict['description'] = description
+    response_dict['description'] = response.description
     schema = getattr(response, 'schema', None)
     if schema:
         response_dict['schema'] = encode_schema(schema)

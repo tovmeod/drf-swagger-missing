@@ -4,7 +4,7 @@ import coreschema
 
 
 class SchemaResponse:
-    def __init__(self, status, description=None, schema=None, headers=None, examples=None):
+    def __init__(self, status, description='', schema=None, headers=None, examples=None):
         """
         todo create headers object (http://swagger.io/specification/#headersObject) and
         examples object (http://swagger.io/specification/#exampleObject)

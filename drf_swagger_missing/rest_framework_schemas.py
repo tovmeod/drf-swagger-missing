@@ -53,7 +53,11 @@ class BetterSchemaGenerator(SchemaGenerator):
         for path, method, view in view_endpoints:
             if self.check_view_permissions and not self.has_view_permissions(path, method, view):
                 continue
-            subpath = path[len(self.prefix):]
+            prefix_len = len(self.prefix)
+            if prefix_len == 1:  # meaning prefix == '/', in other words there is not a common prefix
+                subpath = path
+            else:
+                subpath = path[prefix_len:]
             link = view.schema.get_link(subpath, method, base_url=self.url)
             keys = self.get_keys(subpath, method, view)
             insert_into(links, keys, link)
