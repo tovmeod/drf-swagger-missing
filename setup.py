@@ -1,5 +1,5 @@
 from setuptools import setup
-__version__ = 11
+__version__ = 12
 
 setup(
     name='drf-swagger-missing',
@@ -15,9 +15,9 @@ setup(
         'coreapi==2.3.3',
         'coreschema==0.0.4',
         'openapi_codec==1.3.2',
-        'djangorestframework==3.7.1',
+        'djangorestframework==3.7.2',
         'django-rest-swagger==2.1.2',
-        'django==1.11.6',
+        'django==1.11.7',
     ],
     zip_safe=False,
     include_package_data=True,
