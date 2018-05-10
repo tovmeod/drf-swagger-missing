@@ -7,5 +7,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^docs/$', MySwaggerView.as_view()),
     url(r'^v1/snippets/', include('snippets.urls'), name='snippets'),
-    url(r'^v1/food/', include('food.urls'), name='food'),
+    url(r'^food/', include('food.urls'), name='food'),
 ]
