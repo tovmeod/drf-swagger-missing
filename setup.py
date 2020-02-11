@@ -17,7 +17,7 @@ setup(
         'openapi_codec==1.3.2',
         'djangorestframework==3.8.2',
         'django-rest-swagger==2.2.0',
-        'django==1.11.21',
+        'django==1.11.28',
     ],
     zip_safe=False,
     include_package_data=True,
