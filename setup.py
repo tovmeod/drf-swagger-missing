@@ -15,7 +15,7 @@ setup(
         'coreapi==2.3.3',
         'coreschema==0.0.4',
         'openapi_codec==1.3.2',
-        'djangorestframework==3.8.2',
+        'djangorestframework==3.11.2',
         'django-rest-swagger==2.2.0',
         'django==1.11.21',
     ],
